@@ -1,0 +1,60 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27004.2008
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ClientLibrary", "ClientLibrary", "{6E58C31D-949C-4E57-BBB9-D5129E428F31}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{3CD00C99-5459-485F-B879-E64A10CDDADF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MiraclExternalAuthenticationApp.Core1.1", "MiraclExternalAuthenticationApp.Core1.1\MiraclExternalAuthenticationApp.Core1.1.csproj", "{32704D5D-8194-4DE6-87EA-A376312F0A60}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MiraclAuthenticationApp.Core1.1", "MiraclAuthenticationApp.Core1.1\MiraclAuthenticationApp.Core1.1.csproj", "{0CF9586C-ED39-46F2-A612-8EC89F7D7F5F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{ADD4D59B-D0BA-4250-86F5-4112CDE76DB3}"
+	ProjectSection(SolutionItems) = preProject
+		LICENSE = LICENSE
+		README.md = README.md
+		VERSION = VERSION
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MiraclAuthentication.Core1.1", "MiraclAuthentication.Core1.1\MiraclAuthentication.Core1.1.csproj", "{74D50552-3E32-4CC9-BC99-29ED92DDFB51}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MiraclAuthentication.Core1.1.Tests", "MiraclAuthentication.Core1.1.Tests\MiraclAuthentication.Core1.1.Tests.csproj", "{CFF28E29-B291-48D2-B624-5EA1A9D76510}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{32704D5D-8194-4DE6-87EA-A376312F0A60}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32704D5D-8194-4DE6-87EA-A376312F0A60}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32704D5D-8194-4DE6-87EA-A376312F0A60}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32704D5D-8194-4DE6-87EA-A376312F0A60}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0CF9586C-ED39-46F2-A612-8EC89F7D7F5F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0CF9586C-ED39-46F2-A612-8EC89F7D7F5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0CF9586C-ED39-46F2-A612-8EC89F7D7F5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0CF9586C-ED39-46F2-A612-8EC89F7D7F5F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{74D50552-3E32-4CC9-BC99-29ED92DDFB51}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{74D50552-3E32-4CC9-BC99-29ED92DDFB51}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{74D50552-3E32-4CC9-BC99-29ED92DDFB51}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{74D50552-3E32-4CC9-BC99-29ED92DDFB51}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CFF28E29-B291-48D2-B624-5EA1A9D76510}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CFF28E29-B291-48D2-B624-5EA1A9D76510}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CFF28E29-B291-48D2-B624-5EA1A9D76510}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CFF28E29-B291-48D2-B624-5EA1A9D76510}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{32704D5D-8194-4DE6-87EA-A376312F0A60} = {3CD00C99-5459-485F-B879-E64A10CDDADF}
+		{0CF9586C-ED39-46F2-A612-8EC89F7D7F5F} = {3CD00C99-5459-485F-B879-E64A10CDDADF}
+		{74D50552-3E32-4CC9-BC99-29ED92DDFB51} = {6E58C31D-949C-4E57-BBB9-D5129E428F31}
+		{CFF28E29-B291-48D2-B624-5EA1A9D76510} = {6E58C31D-949C-4E57-BBB9-D5129E428F31}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {45B3EE2A-F0D7-4111-BFA7-0C506B4446C2}
+	EndGlobalSection
+EndGlobal
