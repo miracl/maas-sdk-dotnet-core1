@@ -107,9 +107,9 @@ namespace MiraclAuthenticationTests
 
         private MockHttpMessageHandler GetMockHttpHandler()
         {
-            var discoFileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "documents", "discovery.json");
+            var discoFileName = Path.Combine(AppContext.BaseDirectory, "documents", "discovery.json");
             var document = File.ReadAllText(discoFileName);
-            var jwksFileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "documents", "discovery_jwks.json");
+            var jwksFileName = Path.Combine(AppContext.BaseDirectory, "documents", "discovery_jwks.json");
             var jwks = File.ReadAllText(jwksFileName);
 
             var mockHttp = new MockHttpMessageHandler();
