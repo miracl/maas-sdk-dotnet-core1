@@ -4,8 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,11 +16,11 @@ namespace MiraclAuthenticationApp.Controllers
         {
             if (Request.Query != null && !string.IsNullOrEmpty(Request.Query["code"]) && !string.IsNullOrEmpty(Request.Query["state"]))
             {
-                var properties = await HomeController.Client.ValidateAuthorization(Request.Query);
+                var properties = await HomeController.Client.ValidateAuthorizationAsync(Request.Query);
                 ClaimsPrincipal user;
                 if (properties != null)
                 {
-                    user = await HomeController.Client.GetIdentity();
+                    user = await HomeController.Client.GetIdentityAsync();
                     await Request.HttpContext.Authentication.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, user);
                 }
 

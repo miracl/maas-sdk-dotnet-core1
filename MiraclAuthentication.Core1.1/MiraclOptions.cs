@@ -45,5 +45,13 @@ namespace Miracl
         public HttpClient Backchannel { get; set; }
 
         public IDataProtectionProvider DataProtectionProvider { get; set; }
+
+        /// <summary>
+        /// Gets or sets the customer identifier registered in the MIRACL platform.
+        /// </summary>
+        /// <value>
+        /// The customer identifier.
+        /// </value>
+        public string CustomerId { get; set; }
     }
 }
