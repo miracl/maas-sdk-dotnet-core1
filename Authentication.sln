@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27004.2008
+VisualStudioVersion = 15.0.27130.2003
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ClientLibrary", "ClientLibrary", "{6E58C31D-949C-4E57-BBB9-D5129E428F31}"
 EndProject
@@ -21,6 +21,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MiraclAuthentication.Core1.1", "MiraclAuthentication.Core1.1\MiraclAuthentication.Core1.1.csproj", "{74D50552-3E32-4CC9-BC99-29ED92DDFB51}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MiraclAuthentication.Core1.1.Tests", "MiraclAuthentication.Core1.1.Tests\MiraclAuthentication.Core1.1.Tests.csproj", "{CFF28E29-B291-48D2-B624-5EA1A9D76510}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiraclIdentityVerificationApp.Core1.1", "MiraclIdentityVerificationApp.Core1.1\MiraclIdentityVerificationApp.Core1.1.csproj", "{E6F6D4DD-FB98-494F-A512-C908BAC70E79}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -44,6 +46,10 @@ Global
 		{CFF28E29-B291-48D2-B624-5EA1A9D76510}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CFF28E29-B291-48D2-B624-5EA1A9D76510}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CFF28E29-B291-48D2-B624-5EA1A9D76510}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E6F6D4DD-FB98-494F-A512-C908BAC70E79}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E6F6D4DD-FB98-494F-A512-C908BAC70E79}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E6F6D4DD-FB98-494F-A512-C908BAC70E79}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E6F6D4DD-FB98-494F-A512-C908BAC70E79}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -53,6 +59,7 @@ Global
 		{0CF9586C-ED39-46F2-A612-8EC89F7D7F5F} = {3CD00C99-5459-485F-B879-E64A10CDDADF}
 		{74D50552-3E32-4CC9-BC99-29ED92DDFB51} = {6E58C31D-949C-4E57-BBB9-D5129E428F31}
 		{CFF28E29-B291-48D2-B624-5EA1A9D76510} = {6E58C31D-949C-4E57-BBB9-D5129E428F31}
+		{E6F6D4DD-FB98-494F-A512-C908BAC70E79} = {3CD00C99-5459-485F-B879-E64A10CDDADF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {45B3EE2A-F0D7-4111-BFA7-0C506B4446C2}
