@@ -2,13 +2,16 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using Miracl;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MiraclAuthenticationApp.Controllers
+namespace MiraclDvsSigningApp.Controllers
 {
     public class loginController : Controller
     {
@@ -25,21 +28,13 @@ namespace MiraclAuthenticationApp.Controllers
                 ClaimsPrincipal user = await HomeController.Client.GetIdentityAsync();
                 await Request.HttpContext.Authentication.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, user);
 
-                var idToken = properties.GetTokenValue(OpenIdConnectParameterNames.IdToken);
-                if (!string.IsNullOrEmpty(idToken))
-                {
-                    ViewBag.IdentityTokenParsed = ParseJwt(idToken);
-                }
                 var accessToken = properties.GetTokenValue(OpenIdConnectParameterNames.AccessToken);
                 if (!string.IsNullOrEmpty(accessToken))
                 {
+                    ViewBag.AccessToken = accessToken;
                     ViewBag.AccessTokenParsed = ParseJwt(accessToken);
                 }
-                var refreshToken = properties.GetTokenValue(OpenIdConnectParameterNames.RefreshToken);
-                if (!string.IsNullOrEmpty(refreshToken))
-                {
-                    ViewBag.RefreshTokenParsed = ParseJwt(refreshToken);
-                }
+
                 var expiresAt = properties.GetTokenValue(Miracl.Constants.ExpiresAt);
                 if (!string.IsNullOrEmpty(expiresAt))
                 {
@@ -48,13 +43,40 @@ namespace MiraclAuthenticationApp.Controllers
             }
             else if (!User.Identity.IsAuthenticated)
             {
-                //ErrorViewModel model = new ErrorViewModel() { RequestId = Request.QueryString.Value };
-                //return View("Error", model);
                 return View("Error");
             }
 
             ViewBag.Client = HomeController.Client;
             return View();
+        }
+
+        [HttpPost]
+        public JsonResult CreateDocumentHash(string document)
+        {
+            var docHash = HomeController.Client.DvsCreateDocumentHash(document);
+            var timeStamp = (int)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
+            var documentData = new { hash = docHash, timestamp = timeStamp };
+
+            return Json(documentData);
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> VerifySignature(string verificationData)
+        {
+            var data = JObject.Parse(verificationData);
+
+            var mPinId = data.TryGetValue("mpinId", out JToken mPinIdValue) ? mPinIdValue.ToString() : null;
+            var publicKey = data.TryGetValue("publicKey", out JToken publicKeyValue) ? publicKeyValue.ToString() : null;
+            var u = data.TryGetValue("u", out JToken uValue) ? uValue.ToString() : null;
+            var v = data.TryGetValue("v", out JToken vValue) ? vValue.ToString() : null;
+            var docHash = data.TryGetValue("hash", out JToken docHashValue) ? docHashValue.ToString() : null;
+            var ts = data.TryGetValue("timestamp", out JToken tsValue) ? tsValue.ToString() : null;
+
+            var signature = new Signature(docHash, mPinId, u, v, publicKey);
+            var timeStamp = int.TryParse(ts, out int timeStampValue) ? timeStampValue : 0;
+            var verificationResult = await HomeController.Client.DvsVerifySignatureAsync(signature, timeStamp);
+
+            return Json(new { verified = verificationResult.IsSignatureValid, status = verificationResult.Status.ToString() });
         }
 
         private string ParseJwt(string token)
