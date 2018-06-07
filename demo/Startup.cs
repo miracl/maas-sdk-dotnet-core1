@@ -23,9 +23,6 @@ namespace demo
                 .AddEnvironmentVariables();
             Configuration = builder.Build();
 
-            Console.WriteLine(DateTime.Now);
-            Console.WriteLine(DateTime.UtcNow);
-
             if (Client == null)
             {
                 var options = new MiraclOptions
@@ -76,6 +73,11 @@ namespace demo
 
             app.UseMvc(routes =>
             {
+                routes.MapRoute(
+                    "DVS verify signature",                                           
+                    "verify/",                            
+                    new { controller = "dvs", action = "VerifySignature" });
+
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
