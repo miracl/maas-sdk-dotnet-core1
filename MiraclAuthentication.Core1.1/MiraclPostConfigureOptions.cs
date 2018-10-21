@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System;
+using System.Linq;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 
@@ -104,6 +106,13 @@ namespace Miracl
                     options.DvsConfigurationManager = new ConfigurationManager<OpenIdConnectConfiguration>(options.Authority + Constants.DvsPublicKeyString, new OpenIdConnectConfigurationRetriever(),
                         new HttpDocumentRetriever(options.Backchannel) { RequireHttps = options.RequireHttpsMetadata });
                 }
+            }
+
+            string[] scopes = Constants.Scope.Split(' ');
+            IEnumerable<string> toAdd = scopes.Where(s => !options.Scope.Contains(s));
+            foreach (var scope in toAdd)
+            {
+                options.Scope.Add(scope);
             }
 
             options.IsConfigured = true;
