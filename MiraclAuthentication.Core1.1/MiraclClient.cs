@@ -618,7 +618,6 @@ namespace Miracl
         private string GetAuthorizationRequestUrl(string baseUri, AuthenticationProperties properties, string userStateString = null)
         {
             this.CallbackUrl = baseUri.TrimEnd('/') + this.Options.CallbackPath;
-            string scope = this.Options.Scope.Count() > 0 ? string.Join(" ", Options.Scope) : Constants.Scope;
             if (Options.ProtocolValidator.RequireNonce)
             {
                 this.Nonce = Options.ProtocolValidator.GenerateNonce();
@@ -632,7 +631,7 @@ namespace Miracl
                 Resource = Options.Resource,
                 ResponseType = Constants.Code,
                 IssuerAddress = this.Options.Configuration.AuthorizationEndpoint,
-                Scope = scope,
+                Scope = string.Join(" ", Options.Scope),
                 Nonce = this.Nonce
             };
             
@@ -1231,7 +1230,7 @@ namespace Miracl
                 return string.Empty;
 
             JToken value;
-            return this.UserJson.TryGetValue(propertyName, out value) ? value.ToString() : null;
+            return this.UserJson.TryGetValue(propertyName, out value) ? value.ToString() : string.Empty;
         }
 
         internal string GetClaimValueType(JToken token)
