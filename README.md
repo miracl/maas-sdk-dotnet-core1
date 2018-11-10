@@ -4,7 +4,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/miracl/maas-sdk-dotnet-core1/badge.svg?branch=appveyor)](https://coveralls.io/github/miracl/maas-sdk-dotnet-core1?branch=appveyor)
 
 * **category**:    SDK
-* **copyright**:   2017 MIRACL UK LTD
+* **copyright**:   2018 MIRACL UK LTD
 * **license**:     ASL 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 * **link**:        https://github.com/miracl/maas-sdk-dotnet-core1
 
