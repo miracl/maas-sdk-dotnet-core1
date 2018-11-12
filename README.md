@@ -1,6 +1,9 @@
 # maas-sdk-dotnet-core1
 
 [![Build status](https://ci.appveyor.com/api/projects/status/ylc53lvxtnejc6no/branch/master?svg=true)](https://ci.appveyor.com/project/Miracl/maas-sdk-dotnet-core1/branch/master)
+
+[![Build status](https://ci.appveyor.com/api/projects/status/ylc53lvxtnejc6no?svg=true)](https://ci.appveyor.com/project/Miracl/maas-sdk-dotnet-core1)
+
 [![Coverage Status](https://coveralls.io/repos/github/miracl/maas-sdk-dotnet-core1/badge.svg?branch=appveyor)](https://coveralls.io/github/miracl/maas-sdk-dotnet-core1?branch=appveyor)
 
 * **category**:    SDK
