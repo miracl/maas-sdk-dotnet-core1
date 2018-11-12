@@ -8,11 +8,33 @@ namespace MiraclAuthenticationApp.Controllers
     public class HomeController : Controller
     {
         internal static MiraclClient Client;
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
+        {
+            return View();
+        }
+
+        public IActionResult Error()
+        {
+            return View();
+        }
+
+        public async Task<ActionResult> Login(string email)
         {
             var url = Request.Scheme + "://" + Request.Host.Value;
-            ViewBag.AuthorizationUri = await GetUrl(url);
-            return View();
+            var authorizationUri = await GetUrl(url);
+            // The following code is used to populate prerollid if provided during the authentication process
+            if (!string.IsNullOrEmpty(email))
+            {
+                authorizationUri += "&prerollid=" + email;
+            }
+            return Redirect(authorizationUri);
+        }
+
+        public async Task<ActionResult> Logout(string data)
+        {
+            Client?.ClearUserInfo(false);
+            await Request.HttpContext.Authentication.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return RedirectToAction("Index");
         }
 
         internal static async Task<string> GetUrl(string url)
@@ -29,23 +51,6 @@ namespace MiraclAuthenticationApp.Controllers
             }
 
             return await Client.GetAuthorizationRequestUrlAsync(url);
-        }
-
-        public IActionResult Error()
-        {
-            return View();
-        }
-
-        [HttpPost]
-        public async Task<ActionResult> Index(string Logout)
-        {
-            if (Logout != null)
-            {
-                Client.ClearUserInfo(false);
-                await Request.HttpContext.Authentication.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            }
-
-            return RedirectToAction("Index");
         }
     }
 }

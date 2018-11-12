@@ -4,7 +4,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/miracl/maas-sdk-dotnet-core1/badge.svg?branch=master)](https://coveralls.io/github/miracl/maas-sdk-dotnet-core1?branch=master)
 
 * **category**:    SDK
-* **copyright**:   2017 MIRACL UK LTD
+* **copyright**:   2018 MIRACL UK LTD
 * **license**:     ASL 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 * **link**:        https://github.com/miracl/maas-sdk-dotnet-core1
 
@@ -56,20 +56,26 @@ client = new MiraclClient(new MiraclOptions
 });
 ```
 
-`CLIENT_ID` and `CLIENT_SECRET` are obtained from the MIRACL server and are unique per application. The authentication scheme has to be specified to be same as the one set in the `ConfigureServices` method of the application. If you need the tokens (access token, id token and refresh token), the `SaveTokens` property has to be set.
+`CLIENT_ID` and `CLIENT_SECRET` are obtained from the [MIRACL server](https://trust.miracl.cloud/) and are unique per application. The authentication scheme has to be specified to be same as the one set in the `ConfigureServices` method of the application. If you need the tokens (access token, id token and refresh token), the `SaveTokens` property has to be set.
 
 #### Authorization flow
 
-If the user is not authorized, (s)he should scan the qr code with his/her phone app and authorize on the MIRACL server. This could be done as pass the authorize uri to the QR code by `ViewBag.AuthorizationUri = await client.GetAuthorizationRequestUrlAsync(baseUri)` on the server and use it in the client with the following code:
+If the user is not authorized, (s)he should scan the qr code with his/her phone app and authorize on the MIRACL server. 
+You need to have a login button on your view page:
 
 ```
-<a id="btmpin"></a>
-
-@section scripts{
-<script src="<<Insert correct mpad url here>>" data-authurl="@ViewBag.AuthorizationUri" data-element="btmpin"></script>
-}
+<input type="submit" value="Login" />
+ ```
+which when clicked should redirects you to the Miracl platform for authorization:
 ```
-Please refer to your distributor-specific documentation to find the correct url for the mpad.js `script src`.
+var authorizationUri = await client.GetAuthorizationRequestUrlAsync(WebAppAbsoluteUri); 
+return Redirect(authorizationUri);
+```
+or use the following method for RP initiated authorization (see [Authorization Flow section](https://github.com/miracl/maas-sdk-dotnet-core2/#authorization-flow) for more details):
+```
+string authUri = await client.GetRPInitiatedAuthUriAsync(email, device, WebAppAbsoluteUri);
+return Redirect(authUri);
+```
 
 When the user is being authorized, (s)he is returned to the `redirect uri` defined at creation of the application in the server. The redirect uri should be the same as the one used by the `MiraclClient` object (constructed by the appBaseUri + `CallbackPath` value of the `MiraclOptions` object by default).
 
@@ -86,42 +92,18 @@ Use `client.ClearUserInfo()` to clear user authorization status.
 
 #### Use PrerollId
 
-In order to use PrerollId functionality in your web app, you should set `data-prerollid` parameter with the desired preroll id to the data element passed for authentication:
+In order to use the PrerollId functionality in your web app, you should have an input where the user to enter it to:
 ```	
-<a id="{{buttonElementID}}" data-prerollid="{{prerollID}}></a>
+<input type="email" id="email" name="email" placeholder="Email Address (Preroll Id)" />
 ```
-
-In the current app this could be achieved with the following code:
+Its value should be added as part of the authorization url query string as follows:
 ```
-<p>
-	<a id="btmpin"></a>
-</p>
-<p>
-	@Html.CheckBox("UsePrerollId") &nbsp; Use PrerollId login
-	<div hidden="hidden">
-		<label for="PrerollId" id="lblPrerollId">PrerollId</label>:
-		<br />
-		@Html.TextBox("PrerollId", string.Empty, new { style = "width:500px" })
-	</div>
-</p>
-
-<script>
-	$("#UsePrerollId").change(
-	function () {
-		var prerollIdContainer = $("#PrerollId").parent();
-		prerollIdContainer.toggle();
-		if (prerollIdContainer.is(":visible")) {
-			$('#PrerollId').change(function (event) {
-				var prerollIdData = document.getElementById('PrerollId').value;
-				$('#btmpin').attr("data-prerollid", prerollIdData);
-			});
-
-		}
-		else {
-			$('#btmpin').removeAttr("data-prerollid");
-		}
-	});
-</script>
+var authorizationUri = await client.GetAuthorizationRequestUrlAsync(WebAppAbsoluteUri);
+if (!string.IsNullOrEmpty(email))
+{
+    authorizationUri += "&prerollid=" + email;
+}
+return Redirect(authorizationUri);
 ```
 
 #### DVS flow
@@ -153,9 +135,8 @@ After the client (mobile) app generates the message, it sends it to the server (
 
 ## Samples
 
-Replace `CLIENT_ID`, `CLIENT_SECRET` and `CUSTOMER_ID` (if necessary) in the `appsettings.json` file with your valid credential data from the MIRACL server or use the [recommended approach](https://docs.microsoft.com/en-us/aspnet/core/security/app-secrets) by Microsoft. `baseUri` (which is passed to the `MiraclClient.GetAuthorizationRequestUrlAsync` method in the first sample) should be the uri of your web application.
+Replace `CLIENT_ID`, `CLIENT_SECRET` and `CUSTOMER_ID` (if necessary) in the `appsettings.json` file with your valid credential data from the [MIRACL server](https://trust.miracl.cloud/) or use the [recommended approach](https://docs.microsoft.com/en-us/aspnet/core/security/app-secrets) by Microsoft. `baseUri` (which is passed to the `MiraclClient.GetAuthorizationRequestUrlAsync` method in the first sample) should be the uri of your web application.
 Note that the redirect uri, if not explicitly specified in the `MiraclOptions`, is constructed as `baseUri\login` (the default value of the `CallbackPath` property is `\login`) and it should be passed to the MIRACL server when requiring authentication credential.
-You have to setup the mpad.js url in the Views/Home/Index.cshtml too as explained in the [Authorization Flow section](https://github.com/miracl/maas-sdk-dotnet-core1/#authorization-flow).
 
 * `MiraclAuthenticationApp.Core1.1` demonstrates the usage of `MiraclClient` to authenticate to the MIRACL server
 * `MiraclExternalAuthenticationApp.Core1.1` demonstrates external authentication to the Miracl server. The login page has a `MIRACL` button which performs the authentication. Note that the application uses a database which should be migrated before used. In Visual Studio, you can use the Package Manager Console to apply pending migrations to the database by `PM> Update-Database`. Alternatively, you can apply pending migrations from a command prompt at your project directory by `> dotnet ef database update`.
