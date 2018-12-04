@@ -124,7 +124,7 @@
                         $("#signatureData").html(JSON.stringify(signature, null, 4));
                         $("#signature").removeClass("hidden");
 
-                        dvsVerifySignature(JSON.stringify(signature));
+                        dvsVerifySignature(signature, documentData);
                     }, function fail(error) {
                         console.error(error);
                     });
@@ -132,11 +132,11 @@
             });
         }
 
-        function dvsVerifySignature(signature) {
+        function dvsVerifySignature(signature, documentData) {
             $.ajax({
                 url: "@Url.Action("VerifySignature", "login")",
                 type: "POST",
-                data: { verificationData: signature },
+                data: { verificationData: JSON.stringify(signature), documentData: JSON.stringify(documentData) },
                 dataType: "json",
                 cache: false,
                 success: function (res) {
