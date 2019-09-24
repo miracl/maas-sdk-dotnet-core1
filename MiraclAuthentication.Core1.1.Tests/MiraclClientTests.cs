@@ -457,7 +457,7 @@ namespace MiraclAuthenticationTests
         {
             MiraclClient client = new MiraclClient(new MiraclOptions());
 
-            // as it's mock, we don't have discovery and have to set the tokenendpoints manually            
+            // as it's mock, we don't have discovery and have to set the tokenendpoints manually
             SetDiscovery(client);
             SetDvsConfiguration(client);
 
@@ -744,7 +744,7 @@ namespace MiraclAuthenticationTests
             mockHttp.When(System.Net.Http.HttpMethod.Post, DvsVerifyEndpoint).Respond("application/json", "{\"certificate\":\"eyfQnD\"}");
             Assert.That(() => client.DvsVerifySignatureAsync(SignatureToVerify, 0),
                 Throws.TypeOf<ArgumentException>().And.Message.EqualTo("Invalid DVS token format."));
-            
+
             mockHttp.Clear();
             mockHttp.When(HttpMethod.Post, DvsVerifyEndpoint).Respond("application/json", "\"invalid\":\"json\"}");
             Assert.That(() => client.DvsVerifySignatureAsync(SignatureToVerify, 0),
@@ -877,294 +877,6 @@ namespace MiraclAuthenticationTests
         #endregion
 
         #region PV
-        [Test]
-        public void Test_HandleNewIdentityPushAsync()
-        {
-            var client = InitClient();
-            client.Options.CustomerId = ValidCustomerId;
-
-            var identity = client.HandleNewIdentityPushAsync("{\"new_user_token\":\"" + NewUserToken + "\"}").Result;
-
-            Assert.That(identity, Is.Not.Null);
-            Assert.That(identity.Info, Is.Not.Null);
-            Assert.That(identity.Info.Id, Is.EqualTo("asd@example.com"));
-            Assert.That(identity.Info.DeviceName, Is.EqualTo("Chrome on Windows"));
-            Assert.That(identity.ActivationParams, Is.Not.Null);
-            Assert.That(identity.ActivationParams.MPinIdHash, Is.EqualTo("5931ed4363cbc73c88d6a173bde75546a78f2c16fbe90949a8ebc4e1b1db635f"));
-            Assert.That(identity.ActivationParams.ActivateKey, Is.EqualTo("29b9aea1dd8b42594bd8209e3f497dfa83818fdf8cdd027302f85d6ee7e2160f"));
-            Assert.That(identity.ActivateExpireTime, Is.EqualTo(1512640536));
-        }
-        
-        [Test]
-        public void Test_HandleNewIdentityPushAsync_MissingKey()
-        {
-            var client = InitClient();
-            client.Options.CustomerId = ValidCustomerId;
-            // remove the key to reproduce key change in the platform
-            client.Options.Configuration.SigningKeys.Remove(client.Options.Configuration.SigningKeys.First(key => key.KeyId == "31-07-2016"));
-            client.Options.ConfigurationManager = GetConfigManager(client);
-
-            var identity = client.HandleNewIdentityPushAsync("{\"new_user_token\":\"" + NewUserToken + "\"}").Result;
-
-            Assert.That(identity, Is.Not.Null);
-            Assert.That(identity.Info, Is.Not.Null);
-            Assert.That(identity.Info.Id, Is.EqualTo("asd@example.com"));
-            Assert.That(identity.Info.DeviceName, Is.EqualTo("Chrome on Windows"));
-            Assert.That(identity.ActivationParams, Is.Not.Null);
-            Assert.That(identity.ActivationParams.MPinIdHash, Is.EqualTo("5931ed4363cbc73c88d6a173bde75546a78f2c16fbe90949a8ebc4e1b1db635f"));
-            Assert.That(identity.ActivationParams.ActivateKey, Is.EqualTo("29b9aea1dd8b42594bd8209e3f497dfa83818fdf8cdd027302f85d6ee7e2160f"));
-            Assert.That(identity.ActivateExpireTime, Is.EqualTo(1512640536));
-        }
-
-        [Test]
-        public void Test_HandleNewIdentityPushAsync_NullJson()
-        {
-            var client = new MiraclClient();
-
-            Assert.That(() => client.HandleNewIdentityPushAsync(null),
-               Throws.TypeOf<ArgumentNullException>());
-        }
-
-        [TestCase("")]
-        [TestCase("invalid json")]
-        [TestCase("{invalid json}")]
-        public void Test_HandleNewIdentityPushAsync_InvalidNewUserJson(string newUserJson)
-        {
-            var client = new MiraclClient();
-
-            Assert.That(() => client.HandleNewIdentityPushAsync(newUserJson),
-               Throws.TypeOf<Newtonsoft.Json.JsonReaderException>());
-        }
-
-        [Test]
-        public void Test_HandleNewIdentityPushAsync_MissingNewUserTokenInJson()
-        {
-            var client = new MiraclClient();
-
-            Assert.That(() => client.HandleNewIdentityPushAsync("{\"token\": \"token_value\"}"),
-               Throws.TypeOf<ArgumentException>().And.Message.EqualTo("No `new_user_token` in the JSON input."));
-        }
-
-        [Test]
-        public void Test_HandleNewIdentityPullAsync()
-        {
-            var userPullResponse = "{\"userId\":\"userIdValue\",\"deviceName\":\"deviceNameValue\",\"hashMPinId\":\"hashMPinIdValue\",\"activateKey\":\"activateKeyValue\",\"expireTime\":1}";
-            var mockHttp = new MockHttpMessageHandler();
-            mockHttp.When(Endpoint + "/activate/pull").Respond("application/json", userPullResponse);
-            MiraclOptions options = new MiraclOptions();
-            options.ClientId = "MockClientId";
-            options.ClientSecret = "MockSecret";
-            options.BackchannelHttpHandler = mockHttp;
-            options.Authority = Endpoint;
-            MiraclClient client = new MiraclClient(options);
-
-            var identity = client.HandleNewIdentityPullAsync("MockUserId").Result;
-
-            Assert.That(identity, Is.Not.Null);
-            Assert.That(identity.Info, Is.Not.Null);
-            Assert.That(identity.Info.Id, Is.EqualTo("userIdValue"));
-            Assert.That(identity.Info.DeviceName, Is.EqualTo("deviceNameValue"));
-            Assert.That(identity.ActivationParams, Is.Not.Null);
-            Assert.That(identity.ActivationParams.MPinIdHash, Is.EqualTo("hashMPinIdValue"));
-            Assert.That(identity.ActivationParams.ActivateKey, Is.EqualTo("activateKeyValue"));
-            Assert.That(identity.ActivateExpireTime, Is.EqualTo(1));
-        }
-
-        [Test]
-        public void Test_HandleNewIdentityPullAsync_ServerResponseStatusRequestTimeout()
-        {
-            var mockHttp = new MockHttpMessageHandler();
-            mockHttp.When(Endpoint + "/activate/pull").Respond(HttpStatusCode.RequestTimeout, "application/json", string.Empty);
-
-            MiraclOptions options = new MiraclOptions();
-            options.ClientId = "MockClientId";
-            options.ClientSecret = "MockSecret";
-            options.BackchannelHttpHandler = mockHttp;
-            options.Authority = Endpoint;
-            MiraclClient client = new MiraclClient(options);
-
-            Assert.That(() => client.HandleNewIdentityPullAsync("MockUserId"),
-               Throws.TypeOf<Exception>().And.Message.EqualTo("No connection with the Platform at " + Endpoint + "/activate/pull."));
-        }
-
-        [Test]
-        public void Test_HandleNewIdentityPullAsync_UserIdNotFound()
-        {
-            var mockHttp = new MockHttpMessageHandler();
-            mockHttp.When(Endpoint + "/activate/pull").Respond(HttpStatusCode.NotFound, "application/json", "{\"status\":\"UserID not found\",\"message\":\"\"}");
-
-            MiraclOptions options = new MiraclOptions();
-            options.ClientId = "MockClientId";
-            options.ClientSecret = "MockSecret";
-            options.BackchannelHttpHandler = mockHttp;
-            options.Authority = Endpoint;
-            MiraclClient client = new MiraclClient(options);
-
-            var identity = client.HandleNewIdentityPullAsync("MockUserId").Result;
-
-            Assert.That(identity.IsEmpty(), Is.True);
-        }
-
-        [Test]
-        public void Test_HandleNewIdentityPullAsync_InvalidResponse()
-        {
-            var mockHttp = new MockHttpMessageHandler();
-            mockHttp.When(Endpoint + "/activate/pull").Respond("application/json", string.Empty);
-
-            MiraclOptions options = new MiraclOptions();
-            options.ClientId = "MockClientId";
-            options.ClientSecret = "MockSecret";
-            options.BackchannelHttpHandler = mockHttp;
-            options.Authority = Endpoint;
-            MiraclClient client = new MiraclClient(options);
-
-            var identity = client.HandleNewIdentityPullAsync("MockUserId").Result;
-
-            Assert.That(identity, Is.Null);
-
-            mockHttp.Clear();
-            mockHttp.When(Endpoint + "/activate/pull").Respond("application/json", "\"invalid\":\"json\"}");
-            Assert.That(() => client.HandleNewIdentityPullAsync("MockUserId"),
-                Throws.TypeOf<Exception>().And.Message.EqualTo("Cannot generate a user from the server response."));
-        }
-
-        [Test]
-        public void Test_ActivateIdentityAsync()
-        {
-            var activateUserResponse = "{\"status\":\"OK\",\"message\":\"Activated\"}";
-            var mockHttp = new MockHttpMessageHandler();
-            mockHttp.When(Endpoint + "/activate/user").Respond("application/json", activateUserResponse);
-            MiraclOptions options = new MiraclOptions();
-            options.ClientId = "MockClientId";
-            options.ClientSecret = "MockSecret";
-            options.BackchannelHttpHandler = mockHttp;
-            options.Authority = Endpoint;
-            MiraclClient client = new MiraclClient(options);
-
-            Assert.That(client.ActivateIdentityAsync(new IdentityActivationParams("hash", "key")).Result, Is.EqualTo(HttpStatusCode.OK));
-        }
-
-        [TestCase("{\"status\":\"Not OK\",\"message\":\"Activated\"}")]
-        [TestCase("{\"status\":\"OK\",\"message\":\"Not Activated\"}")]
-        [TestCase("{\"st\":\"OK\",\"message\":\"Activated\"}")]
-        [TestCase("{\"status\":\"OK\",\"msg\":\"Activated\"}")]
-        [TestCase("{\"status\":\"OK\"}")]
-        [TestCase("{\"message\":\"Activated\"}")]
-        public void Test_ActivateIdentityAsync_ServerResponseStatusOK_InvalidResponse(string activateUserResponse)
-        {
-            var mockHttp = new MockHttpMessageHandler();
-            mockHttp.When(Endpoint + "/activate/user").Respond("application/json", activateUserResponse);
-            MiraclOptions options = new MiraclOptions();
-            options.ClientId = "MockClientId";
-            options.ClientSecret = "MockSecret";
-            options.BackchannelHttpHandler = mockHttp;
-            options.Authority = Endpoint;
-            MiraclClient client = new MiraclClient(options);
-
-            Assert.That(client.ActivateIdentityAsync(new IdentityActivationParams("hash", "key")).Result, Is.EqualTo(HttpStatusCode.InternalServerError));
-        }
-
-        [Test]
-        public void Test_ActivateIdentityAsync_NullInput()
-        {
-            Assert.That(() => new MiraclClient().ActivateIdentityAsync(null),
-                Throws.TypeOf<ArgumentNullException>().And.Property("ParamName").EqualTo("activationParams"));
-        }
-
-        [TestCase("", "")]
-        [TestCase(null, null)]
-        [TestCase("", null)]
-        [TestCase(null, "")]
-        public void Test_ActivateIdentityAsync_InvalidInput(string hashMPinId, string activateKey)
-        {
-            var mockHttp = new MockHttpMessageHandler();
-            mockHttp.When(HttpMethod.Post, Endpoint + "/activate/user").Respond(HttpStatusCode.NotFound, "application/json", string.Empty);
-            MiraclOptions options = new MiraclOptions();
-            options.ClientId = "MockClientId";
-            options.ClientSecret = "MockSecret";
-            options.BackchannelHttpHandler = mockHttp;
-            options.Authority = Endpoint;
-            MiraclClient client = new MiraclClient(options);
-
-            Assert.That(client.ActivateIdentityAsync(new IdentityActivationParams(hashMPinId, activateKey)).Result, Is.EqualTo(HttpStatusCode.NotFound));
-        }
-
-        [Test]
-        public void Test_GetIdentityInfoAsync()
-        {
-            var activateUserResponse = "{\"userId\":\"userIdValue\",\"deviceName\":\"deviceNameValue\"}";
-            var mockHttp = new MockHttpMessageHandler();
-            mockHttp.When(Endpoint + Constants.GetIdentityInfoEndpoint).Respond("application/json", activateUserResponse);
-            MiraclOptions options = new MiraclOptions();
-            options.ClientId = "MockClientId";
-            options.ClientSecret = "MockSecret";
-            options.BackchannelHttpHandler = mockHttp;
-            options.Authority = Endpoint;
-            MiraclClient client = new MiraclClient(options);
-
-            var info = client.GetIdentityInfoAsync(new IdentityActivationParams("hash", "key")).Result;
-
-            Assert.That(info, Is.Not.Null);
-            Assert.That(info.Id, Is.EqualTo("userIdValue"));
-            Assert.That(info.DeviceName, Is.EqualTo("deviceNameValue"));
-        }
-
-        [Test]
-        public void Test_GetIdentityInfoAsync_ServerResponseStatusNotOK()
-        {
-            var mockHttp = new MockHttpMessageHandler();
-            mockHttp.When(HttpMethod.Post, Endpoint + Constants.GetIdentityInfoEndpoint).Respond(HttpStatusCode.NotFound, "application/json", string.Empty);
-            var client = InitClient("MockClient", "MockSecret", mockHttp);
-
-            var info = client.GetIdentityInfoAsync(new IdentityActivationParams("hash", "key")).Result;
-
-            Assert.That(info, Is.Null);
-        }
-
-        [TestCase("{\"userId\":\"\",\"deviceName\":\"deviceNameValue\"}")]
-        [TestCase("{\"userId\":\"userIdValue\",\"deviceName\":\"\"}")]
-        [TestCase("{\"userId\":\"\",\"deviceName\":\"\"}")]
-        [TestCase("{\"userId\":null,\"deviceName\":\"deviceNameValue\"}")]
-        [TestCase("{\"userId\":\"userIdValue\",\"deviceName\":null}")]
-        [TestCase("{\"notUserId\":\"userIdValue\",\"deviceName\":\"deviceNameValue\"}")]
-        [TestCase("{\"userId\":\"userIdValue\",\"notDeviceName\":\"deviceNameValue\"}")]
-        [TestCase("{\"userId\":\"userIdValue\"}")]
-        [TestCase("{\"deviceName\":\"deviceNameValue\"}")]
-        public void Test_GetIdentityInfoAsync_ServerResponseStatusOK_InvalidResponse(string response)
-        {
-            var mockHttp = new MockHttpMessageHandler();
-            mockHttp.When(HttpMethod.Post, Endpoint + Constants.GetIdentityInfoEndpoint).Respond("application/json", response);
-            var client = InitClient("MockClient", "MockSecret", mockHttp);
-
-            Assert.That(() => client.GetIdentityInfoAsync(new IdentityActivationParams("hash", "key")),
-               Throws.TypeOf<ArgumentException>().And.Message.EqualTo("Invalid response."));
-        }
-
-        [Test]
-        public void Test_GetIdentityInfoAsync_NullInput()
-        {
-            Assert.That(() => new MiraclClient().GetIdentityInfoAsync(null),
-                Throws.TypeOf<ArgumentNullException>().And.Property("ParamName").EqualTo("activationParams"));
-        }
-
-        [TestCase("", "")]
-        [TestCase(null, null)]
-        [TestCase("", null)]
-        [TestCase(null, "")]
-        public void Test_GetIdentityInfoAsync_InvalidInput(string hashMPinId, string activateKey)
-        {
-            var mockHttp = new MockHttpMessageHandler();
-            mockHttp.When(HttpMethod.Post, Endpoint + "/activate/user").Respond(HttpStatusCode.NotFound, "application/json", string.Empty);
-            MiraclOptions options = new MiraclOptions();
-            options.ClientId = "MockClientId";
-            options.ClientSecret = "MockSecret";
-            options.BackchannelHttpHandler = mockHttp;
-            options.Authority = Endpoint;
-            MiraclClient client = new MiraclClient(options);
-
-            Assert.That(client.GetIdentityInfoAsync(new IdentityActivationParams(hashMPinId, activateKey)).Result, Is.Null);
-        }
-
         [TestCase(null, null, null, null, 0)]
         [TestCase("", "", "", "", 0)]
         public void Test_Identity_IsEmpty(string id, string deviceName, string mPinIdHash, string activateKey, Int64 activateExpireTime)
@@ -1224,42 +936,6 @@ namespace MiraclAuthenticationTests
 
             Assert.That(new MiraclClient().TryGetTokenDataByName(data, propertyName), Is.EqualTo(string.Empty));
         }
-
-        [Test]
-        public void Test_ParseCustomEmailQueryString()
-        {
-            var dictionary = new Dictionary<string, StringValues>();
-            dictionary.Add("i", "MockMPinIdHash");
-            dictionary.Add("s", "MockActivateKey");
-            var query = new MockQuery(dictionary);
-
-            var client = new MiraclClient();
-            var activationParams = client.ParseCustomEmailQueryString(query);
-
-            Assert.IsNotNull(activationParams);
-            Assert.That(activationParams.MPinIdHash, Is.EqualTo("MockMPinIdHash"));
-            Assert.That(activationParams.ActivateKey, Is.EqualTo("MockActivateKey"));
-        }
-
-        [Test]
-        public void Test_ParseCustomEmailQueryString_NullInput()
-        {
-            Assert.IsNull(new MiraclClient().ParseCustomEmailQueryString(null));
-        }
-
-        [TestCase(null, null)]
-        [TestCase("", null)]
-        [TestCase(null, "")]
-        [TestCase("", "")]
-        public void Test_ParseCustomEmailQueryString_InvalidInput(string i, string s)
-        {
-            var dictionary = new Dictionary<string, StringValues>();
-            dictionary.Add("i", i);
-            dictionary.Add("s", s);
-            var query = new MockQuery(dictionary);
-
-            Assert.IsNull(new MiraclClient().ParseCustomEmailQueryString(query));
-        }
         #endregion
         #endregion
 
@@ -1305,7 +981,7 @@ namespace MiraclAuthenticationTests
 
         private ConfigurationManager<OpenIdConnectConfiguration> GetConfigManager(MiraclClient client)
         {
-            return  new ConfigurationManager<OpenIdConnectConfiguration>(
+            return new ConfigurationManager<OpenIdConnectConfiguration>(
                                Endpoint + Constants.DiscoveryPath,
                                    new OpenIdConnectConfigurationRetriever(),
                                new HttpClient(AddDiscoveryEndpoint())
